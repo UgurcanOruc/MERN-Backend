@@ -2,6 +2,7 @@ const HttpError = require("../models/http-error");
 const { v4: uuidv4 } = require("uuid");
 const { validationResult } = require("express-validator");
 const getCoordsForAddress = require("../util/location");
+const Place = require("../models/place");
 
 let DUMMY_PLACES = [
   {
@@ -17,15 +18,24 @@ let DUMMY_PLACES = [
   },
 ];
 
-const getPlaceById = (req, res, next) => {
+const getPlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
-  const place = DUMMY_PLACES.find((p) => p.id === placeId);
-
-  if (!place) {
-    throw new HttpError("Could not found a place for the provided id.", 404);
+  try {
+    const place = await Place.findById(placeId);
+    if (!place) {
+      return next(
+        HttpError("Could not found a place for the provided id.", 404)
+      );
+    }
+    res.send(place.toObject({ getters: true }));
+  } catch (error) {
+    return next(
+      new HttpError(
+        "Something went wrong, could not find place for the provided id.",
+        500
+      )
+    );
   }
-
-  res.send(place);
 };
 
 const getUserPlacesById = (req, res, next) => {
@@ -47,23 +57,28 @@ const createPlace = async (req, res, next) => {
 
   const { title, description, address, creator } = req.body;
   let coordinates;
-  
+
   try {
     coordinates = await getCoordsForAddress(address);
   } catch (error) {
     return next(error);
   }
 
-  const createdPlace = {
-    id: uuidv4(),
+  const createdPlace = new Place({
     title,
     description,
-    location: coordinates,
     address,
+    location: coordinates,
+    image:
+      "https://s39023.pcdn.co/wp-content/uploads/2022/10/Where-Are-Those-Morgans-Empire-State-Building-728x546.jpg.optimal.jpg",
     creator,
-  };
+  });
 
-  DUMMY_PLACES.push(createdPlace);
+  try {
+    await createdPlace.save();
+  } catch (error) {
+    return next(new HttpError("Creating place failed, please try again.", 500));
+  }
   res.status(201).send(createdPlace);
 };
 
