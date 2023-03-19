@@ -35,7 +35,7 @@ app.use((error, req, res, next) => {
     return next(error);
   }
   res.status(error.code || 500);
-  res.send({ error: error.message || "An unknown error occured!" });
+  res.send({ message: error.message || "An unknown error occured!" });
 });
 
 mongoose
