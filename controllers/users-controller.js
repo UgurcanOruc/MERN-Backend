@@ -13,7 +13,7 @@ const DUMMY_USERS = [
 ];
 
 const getUsers = async (req, res, next) => {
-  const users = await User.find({}, '-password');
+  const users = await User.find({}, "-password");
   res.send(users);
 };
 
@@ -29,7 +29,9 @@ const signup = async (req, res, next) => {
   try {
     existingUser = await User.findOne({ email: email });
   } catch (error) {
-    return next(new HttpError("Signing upfailed, please try again later.", 500));
+    return next(
+      new HttpError("Signing upfailed, please try again later.", 500)
+    );
   }
 
   if (existingUser) {
@@ -42,7 +44,7 @@ const signup = async (req, res, next) => {
     image:
       "https://www.artmajeur.com/medias/standard/l/o/locutart/artwork/6954958_dressup247-anime-avatar.jpg",
     password,
-    places : []
+    places: [],
   });
 
   try {
@@ -62,9 +64,11 @@ const login = async (req, res, next) => {
     return next(new HttpError("Login failed, please try again later.", 500));
   }
   if (!existingUser || existingUser.password !== password) {
-    return next(new HttpError('Invalid credentials, could not log you in.', 401));
+    return next(
+      new HttpError("Invalid credentials, could not log you in.", 401)
+    );
   }
-  res.send({ message: "Logged in." });
+  res.send(existingUser);
 };
 
 exports.getUsers = getUsers;
