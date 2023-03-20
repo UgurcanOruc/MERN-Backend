@@ -3,15 +3,6 @@ const { v4: uuidv4 } = require("uuid");
 const { validationResult } = require("express-validator");
 const User = require("../models/user");
 
-const DUMMY_USERS = [
-  {
-    id: "u1",
-    name: "Ugurcan Oruc",
-    email: "test@test.com",
-    password: "testers",
-  },
-];
-
 const getUsers = async (req, res, next) => {
   const users = await User.find({}, "-password");
   res.send(users);
@@ -41,8 +32,7 @@ const signup = async (req, res, next) => {
   const createdUser = new User({
     name,
     email,
-    image:
-      "https://www.artmajeur.com/medias/standard/l/o/locutart/artwork/6954958_dressup247-anime-avatar.jpg",
+    image: req.file.path,
     password,
     places: [],
   });
