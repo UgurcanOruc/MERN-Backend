@@ -3,11 +3,17 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const fs = require("fs");
 const path = require("path");
+require("dotenv").config({ path: __dirname + "/.env" });
 
 const placesRoutes = require("./routes/places-routes");
 const usersRoutes = require("./routes/users-routes");
 
 const HttpError = require("./models/http-error");
+
+const mongooseName = process.env["MONGOOSE_NAME"];
+const mongoosePassword = process.env["MONGOOSE_PASSWORD"];
+const mongooseDbName = process.env["MONGOOSE_DB_NAME"];
+const connectionString = `mongodb+srv://${mongooseName}:${mongoosePassword}@cluster0.tggomuo.mongodb.net/${mongooseDbName}?retryWrites=true&w=majority`;
 
 const app = express();
 
@@ -49,9 +55,7 @@ app.use((error, req, res, next) => {
 });
 
 mongoose
-  .connect(
-    "mongodb+srv://ugurcan:JpPqvU68sY62DUxc@cluster0.tggomuo.mongodb.net/PlacesSite?retryWrites=true&w=majority"
-  )
+  .connect(connectionString)
   .then(() => {
     app.listen(5000);
   })
